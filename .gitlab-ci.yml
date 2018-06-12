@@ -1,0 +1,3 @@
+Deploy:
+  script:
+    - sh script/deploy.sh
