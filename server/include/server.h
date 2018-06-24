@@ -280,6 +280,7 @@ void clear_cmd(cmd_t *);
 vec2_t move(control_t *, vec2_t, long, long);
 item_t get_chosen_item(client_t *);
 bool add_new_client(control_t *);
+void free_cmd(client_t *, cmd_t *, size_t);
 
 /*
 ** Teams

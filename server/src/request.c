@@ -26,6 +26,9 @@ void free_player(control_t *control, client_t *client)
 	poll_rm(&control->list, client->fd);
 	llist_clear(client->pending, true);
 	llist_destroy(client->pending);
+	llist_for_each(client->cmd,
+		(void (*)(void *, void *, size_t))(free_cmd), client);
+	llist_destroy(client->cmd);
 	team_remove_client(control, client);
 	free(client);
 }
@@ -63,7 +66,7 @@ bool proceed_clients(control_t *ctrl)
 	for (size_t i = 0; i < ctrl->clients->length; ++i) {
 		cl = llist_at(ctrl->clients, (size_t)i);
 		to_evict = ((cl->node->revt & POLLHUP) == POLLHUP);
-		if (cl->cmd->length && cl->state == ANONYMOUS)
+		if (!to_evict && cl->cmd->length && cl->state == ANONYMOUS)
 			append_to_team(ctrl, cl);
 		else if (cl->cmd->length && cl->state != ANONYMOUS &&
 			!to_evict && cl->task.type == NONE)

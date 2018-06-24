@@ -1,0 +1,68 @@
+#!/usr/bin/env python3.5
+# coding = utf-8
+
+import argparse
+import os
+import traceback
+
+from src.classes.com.Client import init_client, ClientException
+from src.classes.states.ConnectionState import ConnectionState
+from src.classes.ia_res.Ant import init_ant
+from src import config
+from src.misc import process, my_log, my_print
+
+
+def parse_arg():
+    parser = argparse.ArgumentParser(
+        usage="USAGE: ./zappy_ai -p port -n name -h machine", add_help=False)
+    parser.add_argument("-help", action="store_true")
+    parser.add_argument("-p", help="is the port number", required=True,
+                        type=int)
+    parser.add_argument("-n", help="is the name of the team", required=True)
+    parser.add_argument("-h",
+                        help="is the name of the machine; localhost by default",
+                        default="localhost")
+
+    args = parser.parse_args()
+    if args.help:
+        exit("""USAGE: ./zappy_ai -p port -n name -h machine
+    port    is the port number
+    name    is the name of the team
+    machine is the name of the machine; localhost by default""")
+    config.file_name = os.path.realpath(__file__)
+    config.hostname = args.h
+    config.port = args.p
+    config.team_name = args.n
+    return args
+
+
+def run(args):
+    with init_client(args.h, args.p):
+        from src.classes.states.StateMachine import statemachine
+        init_ant(args.n)
+        conn_state = ConnectionState()
+        statemachine.push(conn_state)
+        while True:
+            statemachine.update()
+
+
+def main():
+    try:
+        args = parse_arg()
+        try:
+            run(args)
+        except ClientException as e:
+            print(e)
+        except Exception as e:
+            my_print("")
+            traceback.print_tb(e.__traceback__)
+            if process:
+                process.wait()
+            exit(0)
+    except Exception:
+        if process:
+            process.kill()
+
+
+if __name__ == "__main__":
+    main()

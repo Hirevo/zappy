@@ -88,7 +88,6 @@ int main(int ac, const char **av)
 	CHECK(ctrl_init(&ctrl), == false, 84);
 	CHECK(ctrl.fd = create_server(ctrl.params.port), == -1, 84);
 	CHECK(poll_add(&ctrl.list, ctrl.fd, POLLIN), == 0, 84);
-	display_map(&ctrl);
 	while (1) {
 		CHECK(ret = cycle_adjustment(&ctrl), == false, 84);
 		proceed_clients(&ctrl);

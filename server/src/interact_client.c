@@ -7,6 +7,14 @@
 
 #include "server.h"
 
+void free_cmd(client_t *client, cmd_t *cmd, size_t idx)
+{
+	(void)(idx);
+	(void)(client);
+	free_json(cmd->json);
+	clear_cmd(cmd);
+}
+
 bool evict_client(control_t *control, client_t *cl)
 {
 	event_player_death(control, cl, "disconnection");
@@ -14,6 +22,9 @@ bool evict_client(control_t *control, client_t *cl)
 	poll_rm(&control->list, cl->fd);
 	llist_clear(cl->pending, true);
 	llist_destroy(cl->pending);
+	llist_for_each(
+		cl->cmd, (void (*)(void *, void *, size_t))(free_cmd), cl);
+	llist_destroy(cl->cmd);
 	close(cl->fd);
 	free(cl);
 	return (true);

@@ -13,6 +13,8 @@ void finalize_json(client_t *cl, object_t *ret, cmd_t *cmd)
 
 	add_pending(cl, ljson_serialize(elem));
 	free_elem(elem, false);
-	if (cmd && cmd->json)
+	if (cmd && cmd->json) {
 		free_json(cmd->json);
+		cmd->json = 0;
+	}
 }

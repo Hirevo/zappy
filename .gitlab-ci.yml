@@ -1,8 +1,9 @@
 stages:
   - build
-  - basic
-  - commands
-  - event
+  - srv_basic
+  - srv_commands
+  - srv_event
+  - ia_protocol
 
 srv_compile:
   stage: build
@@ -14,8 +15,18 @@ srv_compile:
     expire_in: 10 minutes
   allow_failure: false
 
+gui_compile:
+  image: node:9
+  stage: build
+  script:
+    - cd gui
+    - npm install --progress=false
+    - npm install -g webpack webpack-cli --progress=false
+    - webpack --verbose
+  allow_failure: false
+
 srv_connect:
-  stage: basic
+  stage: srv_basic
   retry: 2
   script:
     - ./server/zappy_server -f 10 -n test -c 10 -x 20 -y 20 &
@@ -24,7 +35,7 @@ srv_connect:
   allow_failure: false
 
 srv_join:
-  stage: basic
+  stage: srv_basic
   retry: 2
   script:
     - ./server/zappy_server -f 100 -n test -c 10 -x 20 -y 20 &
@@ -33,7 +44,7 @@ srv_join:
   allow_failure: false
 
 srv_unknown:
-  stage: commands
+  stage: srv_commands
   retry: 2
   script:
     - ./server/zappy_server -f 100 -n test -c 10 -x 20 -y 20 &
@@ -41,7 +52,7 @@ srv_unknown:
     - cat /tmp/zappy_output | grep "`cat test/server/unknown.output`"
 
 srv_player_forward:
-  stage: commands
+  stage: srv_commands
   retry: 2
   script:
     - ./server/zappy_server -f 100 -n test -c 10 -x 20 -y 20 &
@@ -49,7 +60,7 @@ srv_player_forward:
     - cat /tmp/zappy_output | grep "`cat test/server/forward.output`"
 
 srv_player_death:
-  stage: commands
+  stage: srv_commands
   retry: 2
   script:
     - ./server/zappy_server -f 1000 -n test -c 10 -x 20 -y 20 &
@@ -57,7 +68,7 @@ srv_player_death:
     - cat /tmp/zappy_output | grep "`cat test/server/death.output`"
 
 srv_player_broadcast:
-  stage: commands
+  stage: srv_commands
   retry: 2
   script:
     - ./server/zappy_server -f 100 -n test -c 10 -x 20 -y 20 &
@@ -66,7 +77,7 @@ srv_player_broadcast:
     - cat /tmp/zappy_output | grep "`cat test/server/broadcast.output`"
 
 srv_player_connect_nbr:
-  stage: commands
+  stage: srv_commands
   retry: 2
   script:
     - ./server/zappy_server -f 100 -n test -c 10 -x 20 -y 20 &
@@ -74,7 +85,7 @@ srv_player_connect_nbr:
     - cat /tmp/zappy_output | grep "`cat test/server/connect_nbr.output`"
 
 srv_player_fork:
-  stage: commands
+  stage: srv_commands
   retry: 2
   script:
     - ./server/zappy_server -f 1000 -n test -c 10 -x 20 -y 20 &
@@ -83,7 +94,7 @@ srv_player_fork:
     - cat /tmp/zappy_output | grep "`sed '1q;d' test/server/fork.output`" && cat /tmp/zappy_output | grep "`sed '2q;d' test/server/fork.output`"
 
 srv_player_incantation_fail:
-  stage: commands
+  stage: srv_commands
   retry: 2
   script:
     - ./server/zappy_server -f 1000 -n test -c 10 -x 20 -y 20 &
@@ -92,7 +103,7 @@ srv_player_incantation_fail:
     - cat /tmp/zappy_output | grep "`cat test/server/incantation_fail.output`"
 
 srv_player_inventory:
-  stage: commands
+  stage: srv_commands
   retry: 2
   script:
     - ./server/zappy_server -f 100 -n test -c 10 -x 20 -y 20 &
@@ -100,7 +111,7 @@ srv_player_inventory:
     - cat /tmp/zappy_output | grep "`cat test/server/inventory.output`"
 
 srv_gui_event_join:
-  stage: event
+  stage: srv_event
   retry: 2
   script:
     - ./server/zappy_server -f 100 -n test -c 10 -x 20 -y 20 &
@@ -109,19 +120,22 @@ srv_gui_event_join:
     - cat /tmp/zappy_output | grep "`cat test/server/event_join.output`"
 
 srv_gui_event_broadcast:
-  stage: event
+  stage: srv_event
   retry: 2
   script:
-    - ./server/zappy_server -f 100 -n test -c 10 -x 20 -y 20 &
-    - nc 0 4242 -w 5 < test/server/gui_connect.input > /tmp/zappy_output &
-    - nc 0 4242 -w 5 < test/server/event_broadcast.input
-    - cat /tmp/zappy_output | grep "`cat test/server/event_broadcast.output`"
+    git status
 
 srv_gui_event_egg:
-  stage: event
+  stage: srv_event
   retry: 2
   script:
     - ./server/zappy_server -f 1000 -n test -c 10 -x 20 -y 20 &
     - nc 0 4242 -w 10 < test/server/gui_connect.input > /tmp/zappy_output &
     - nc 0 4242 -w 10 < test/server/fork.input
     - cat /tmp/zappy_output | grep "`sed '1q;d' test/server/event_egg.output`" && cat /tmp/zappy_output | grep "`sed '2q;d' test/server/event_egg.output`"
+
+ia_protocol:
+  stage: ia_protocol
+  retry: 2
+  script:
+    - python3 ia/src/classes/ia_res/MsgProtocol.py
