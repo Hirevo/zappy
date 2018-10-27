@@ -1,4 +1,13 @@
-# PSU Network Unit - Zappy
+# Unix System Development: Network Unit - Zappy
+
+## Authors
+
+- **`Nicolas POLOMACK`** (email: nicolas.polomack@epitech.eu)
+- **`Cédric THOMAS`** (email: cedric.thomas@epitech.eu)
+- **`Maxime JENNY`** (email: maxime.jenny@epitech.eu)
+- **`Thibaut CORNOLTI`** (email: thibaut.cornolti@epitech.eu)
+- **`Arthur KNOEPFLIN`** (email: arthur.knoepflin@epitech.eu)
+- **`Bastien RINCK`** (email: bastien.rinck@epitech.eu)
 
 ## Introduction
 
@@ -30,8 +39,10 @@ Here are the instructions on how to build the different modules of the project o
 
 The server module is implemented in C.  
 It can be found in the `server/` folder.  
+It uses and vendors the [libjson-c](https://github.com/Hirevo/libjson-c) library to communicate with the GUI module.  
+It also uses various other libraries to achieve cleaner, less error-prone code.  
 
-No dependancy is required to build it except `gcc` and `make`.
+No dependancy is required to build it except `gcc` and `make`.  
 
 To start the build, do either:
 ```bash
@@ -46,10 +57,6 @@ To restart the build, use `make re` instead of `make`
 
 You can then launch it like this:
 ```bash
-# From the repository root folder
-./server/zappy_server [-n [teams]...] [-f [ticks per second]] [-p [port]] [-h]
-
-# From the server/ folder
 ./zappy_server [-n [teams]...] [-f [ticks per second]] [-p [port]] [-h]
 ```
 
